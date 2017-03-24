@@ -1,0 +1,301 @@
+/**
+ * JJTree template file created by SF JavaCC plugin 1.5.28+ wizard for JavaCC 1.5.0+
+ */
+options
+{
+  static = true;
+}
+
+PARSER_BEGIN(Parser)
+package cn.nwafulive.zq.parser;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+public class Parser
+{
+  public static void main(String args [])throws FileNotFoundException
+  {
+    System.out.println("Reading from standard input...");
+    System.out.print("Enter an expression like \"1+(2+3)*var;\" :");
+    //    new Parser(System.in);
+    File file = new File(".\\programme\\p.txt");
+    FileInputStream in = new FileInputStream(file);
+    SimpleCharStream scstream = new SimpleCharStream(in);
+    ParserTokenManager tm = new ParserTokenManager(scstream);
+    Parser parser = new Parser(tm);
+    try
+    {
+      SimpleNode n = Parser.Start();
+      
+      
+      n.dump("");
+      System.out.println("Thank you.");
+    }
+    catch (Exception e)
+    {
+      System.out.println("Oops.");
+      System.out.println(e.getMessage());
+    }
+  }
+}
+
+PARSER_END(Parser)
+
+SKIP :
+{
+  " "
+| "\t"
+| "\n"
+| "\r"
+| < "//" (~[ "\n", "\r" ])*
+    (
+      "\n"
+    | "\r"
+    | "\r\n"
+    ) >
+| < "/*" (~[ "*" ])* "*"
+    (
+      ~[ "/" ] (~[ "*" ])* "*"
+    )*
+    "/" >
+}
+
+TOKEN :	 // KEYWORD
+{
+  < IF : "if" >
+| < ELSE : "else" >
+| < INT : "int" >
+| < RETURN : "return" >
+| < VOID : "void" >
+| < WHILE : "while" >
+| < MAIN : "main" >
+}
+
+TOKEN : /*定义符号*/
+{
+  < UNDERSCORE : "_" >
+| < COMMA : "," >
+| < SEMICOLON : ";" >
+| < COLON : ":" >
+| < LEFTPARENTHESES : "(" >
+| < RIGHTPARENTHESES : ")" >
+| < EQUAL : "=" >
+}
+
+TOKEN : /* IDENTIFIERS */
+{
+  < IDENTIFIER :
+    < LETTER >
+    (
+      < LETTER >
+    | < DIGIT >
+    )* >
+| < #LETTER : [ "_", "a"-"z", "A"-"Z" ] >
+| < #DIGIT : [ "0"-"9" ] >
+}
+
+TOKEN : /* OPERATORS */
+{
+  < PLUS : "+" >
+| < MINUS : "-" >
+| < MULTIPLY : "*" >
+| < DIVIDE : "/" >
+}
+
+TOKEN : /* LITERALS */
+{
+  < INTEGER_LITERAL :
+    < DECIMAL_LITERAL > ([ "l", "L" ])?
+  | < HEX_LITERAL > ([ "l", "L" ])?
+  | < OCTAL_LITERAL > ([ "l", "L" ])? 
+  >
+| < #DECIMAL_LITERAL : [ "1"-"9" ] ([ "0"-"9" ])* >
+| < #HEX_LITERAL : "0" [ "x", "X" ] ([ "0"-"9", "a"-"f", "A"-"F" ])+ >
+| < #OCTAL_LITERAL : "0" ([ "0"-"7" ])* >
+}
+
+TOKEN : // 定义 大 中 括号
+{
+  < LB : "{" >
+| < RB : "}" >
+| < LM : "[" >
+| < RM : "]" >
+}
+
+TOKEN :	 //关系符
+{
+  < LESS : "<" >
+| < GREATER : ">" >
+| < EQUALTO : "==" >
+| < EQUALGREATER : ">=" >
+| < EQUALLESS : "<=" >
+}
+
+SimpleNode Start() :
+{}
+{
+  Procedure() < EOF >
+  {
+    return jjtThis;
+  }
+}
+
+void Procedure() :
+{}
+{
+  < INT > < MAIN > < LEFTPARENTHESES > < RIGHTPARENTHESES > < LB >
+  //  (
+  //    VariableDeclare()
+  //  )*
+  //  (
+  //    Expression()
+  //  )*
+  (
+    StatementBlock()
+  )*
+  < RB >
+}
+
+void StatementBlock() :
+{}
+{
+  Statement()
+|
+  (
+    < LB >
+    (
+      StatementBlock()
+    )*
+    < RB >
+  )
+}
+
+void Statement() :
+{}
+{
+  SequentialStatement()
+| 
+  ConditionalStatement()
+| 
+  LoopStatement()
+}
+
+void SequentialStatement() :
+{}
+{
+  [
+    VariableDeclare()
+  | 
+    AssignmentStatement()
+  ]
+  < SEMICOLON >
+}
+
+void AssignmentStatement() : //赋值语句
+{}
+{
+  < IDENTIFIER > < EQUAL > Expression()
+}
+
+void ConditionalStatement() :
+{}
+{
+  < IF > Condition() 
+  StatementBlock()
+}
+
+void Condition() : //条件
+{}
+{
+  < LEFTPARENTHESES > Expression() RelationSymbol() Expression() < RIGHTPARENTHESES >
+}
+
+void RelationSymbol() : //关系符
+{}
+{
+  < LESS >
+| < GREATER >
+| < EQUALTO >
+| < EQUALGREATER >
+| < EQUALLESS >
+}
+
+void Operator() :	 //运算符
+{}
+{
+  < PLUS >
+| < MINUS >
+| < MULTIPLY >
+| < DIVIDE >
+}
+
+void LoopStatement() :
+{}
+{
+  < WHILE > Condition() StatementBlock()
+}
+
+void VariableDeclare() : //变量声明语句
+{}
+{
+  (
+    < INT > Identifier()
+    (
+      < COMMA > Identifier()
+    )*
+  )
+}
+
+void Expression() : //表达式
+{}
+{
+  AdditiveExpression()
+  // (Expression() Operator() Expression() )|Expression() |Identifier() |"0"
+}
+
+void AdditiveExpression() :
+{}
+{
+  MultiplicativeExpression()
+  (
+    (
+      "+"
+    | "-"
+    )
+    MultiplicativeExpression()
+  )*
+}
+
+void MultiplicativeExpression() :
+{}
+{
+  UnaryExpression()
+  (
+    (
+      "*"
+    | "/"
+    | "%"
+    )
+    UnaryExpression()
+  )*
+}
+
+void UnaryExpression() :
+{}
+{
+  "(" Expression() ")"
+| Identifier()
+| Integer()
+}
+
+void Identifier() :
+{}
+{
+  < IDENTIFIER >
+}
+
+void Integer() :
+{}
+{
+  < INTEGER_LITERAL >
+}

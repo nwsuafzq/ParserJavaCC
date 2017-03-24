@@ -1,0 +1,13 @@
+int main()
+{
+	int a,b,c;
+	a=a+b;
+	if(a>b)
+	{
+		a=a+1;
+	}
+	while(c<=b)
+	{
+		a=a+b*3;
+	}
+}
