@@ -15,21 +15,25 @@ public class Parser
 {
   public static void main(String args [])throws FileNotFoundException
   {
-    System.out.println("Reading from standard input...");
-    System.out.print("Enter an expression like \"1+(2+3)*var;\" :");
+    System.out.println("读文件输入。。。");
+    //System.out.println("Reading from standard input...");
+    //System.out.print("Enter an expression like \"1+(2+3)*var;\" :");
     //    new Parser(System.in);
     File file = new File(".\\programme\\p.txt");
     FileInputStream in = new FileInputStream(file);
     SimpleCharStream scstream = new SimpleCharStream(in);
     ParserTokenManager tm = new ParserTokenManager(scstream);
-    Parser parser = new Parser(tm);
+
+	
+	
+	
+    new Parser(tm);
+    
     try
     {
       SimpleNode n = Parser.Start();
-      
-      
       n.dump("");
-      System.out.println("Thank you.");
+      //System.out.println("Thank you.");
     }
     catch (Exception e)
     {
@@ -144,12 +148,6 @@ void Procedure() :
 {}
 {
   < INT > < MAIN > < LEFTPARENTHESES > < RIGHTPARENTHESES > < LB >
-  //  (
-  //    VariableDeclare()
-  //  )*
-  //  (
-  //    Expression()
-  //  )*
   (
     StatementBlock()
   )*
@@ -250,9 +248,18 @@ void Expression() : //表达式
 {}
 {
   AdditiveExpression()
-  // (Expression() Operator() Expression() )|Expression() |Identifier() |"0"
+// (Expression() Operator() Expression() )|Expression() |Identifier() |"0")
+//	(< LEFTPARENTHESES > Expression()< RIGHTPARENTHESES >|Identifier()) Expression2() 
 }
 
+//void Expression2() :
+//{}
+//{
+//  
+//  [Operator()Expression()Expression2()]
+//
+//}
+  
 void AdditiveExpression() :
 {}
 {

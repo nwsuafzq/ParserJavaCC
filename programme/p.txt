@@ -8,6 +8,6 @@ int main()
 	}
 	while(c<=b)
 	{
-		a=a+b*3;
+		a=a+b*3/(a+c);
 	}
 }
